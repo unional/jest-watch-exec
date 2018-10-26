@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "atom": {
+    "rewriteTsconfig": false
+  },
+  "buildOnSave": false,
+  "compileOnSave": false,
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tslint-language-server"
+      }
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}

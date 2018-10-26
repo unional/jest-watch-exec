@@ -1,0 +1,66 @@
+{
+  "name": "jest-watch-on-pass",
+  "version": "0.0.0-development",
+  "description": "Execute script when test passes in watch mode",
+  "keywords": [
+    "jest",
+    "jest-watch-plugins",
+    "testing",
+    "tooling"
+  ],
+  "homepage": "https://github.com/unional/jest-watch-on-pass",
+  "bugs": {
+    "url": "https://github.com/unional/jest-watch-on-pass/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unional/jest-watch-on-pass.git"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.base.json",
+    "coverage": "jest --coverage",
+    "dc": "npm run dependency-check",
+    "dependency-check": "dependency-check . --unused --no-dev -i jest && dependency-check . --missing --no-dev",
+    "lint": "tslint -p tsconfig.json 'src/**/*.ts'",
+    "test": "npm run build && jest",
+    "verify": "npm run lint && npm run build && npm run coverage && npm run dependency-check",
+    "verify-ci": "npm run lint && npm run build && jest --coverage --config jest.config.ci.json && npm run dependency-check",
+    "watch": "npm run build && jest --watch"
+  },
+  "dependencies": {
+    "ansi-escapes": "^3.1.0",
+    "chalk": "^2.4.1",
+    "jest-watcher": "^23.4.0",
+    "unpartial": "^0.4.1"
+  },
+  "devDependencies": {
+    "@types/ansi-escapes": "^3.0.0",
+    "@types/jest": "^23.3.7",
+    "@types/node": "^10.12.0",
+    "assertron": "^5.2.2",
+    "codecov": "^3.1.0",
+    "dependency-check": "^3.2.1",
+    "greenkeeper-lockfile": "^1.15.1",
+    "jest": "^23.6.0",
+    "jest-audio-reporter": "^2.2.0",
+    "jest-junit": "^5.2.0",
+    "jest-watch-suspend": "^1.1.0",
+    "jest-watch-toggle-config": "^1.0.2",
+    "memory-streams": "^0.1.3",
+    "semantic-release": "^15.10.5",
+    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "tslint-config-unional": "^0.10.0",
+    "tslint-language-service": "^0.9.9",
+    "typescript": "^3.1.3"
+  },
+  "peerDependencies": {
+    "jest": ">=23"
+  }
+}
