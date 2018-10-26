@@ -1,6 +1,6 @@
-import t from 'assert'
+import t from 'assert';
 import ExecPlugin from '.';
-import { Config, ConfigInput } from './ExecPlugin';
+import { ConfigInput } from './ExecPlugin';
 
 test(`no exec script will do nothing`, () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: '', config: {} })
