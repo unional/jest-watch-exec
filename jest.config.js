@@ -7,8 +7,8 @@ module.exports = {
   },
   "reporters": [
     "default",
-    ["jest-audio-reporter", { volume: 0.5 }],
     "jest-progress-tracker",
+    ["jest-audio-reporter", { volume: 0.5 }]
   ],
   "roots": [
     "<rootDir>/src"
