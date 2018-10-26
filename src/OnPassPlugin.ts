@@ -1,21 +1,30 @@
 import cp from 'child_process';
 
-export interface Options {
+export interface Config {
   exec?: string
   runWhileFiltered?: boolean
 }
 
 export class OnPassPlugin {
-  cp: { exec: (command: string) => void } = cp
+  exec: any = cp.exec.bind(cp)
   filtered: boolean
-  constructor(config: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'>, private options?: Options) {
-    this.filtered = !!(config.testNamePattern || config.testPathPattern)
+  config
+  constructor({ testNamePattern, testPathPattern, config }: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'> & { config: Config }) {
+    this.filtered = !!(testNamePattern || testPathPattern)
+    this.config = config
   }
 
   apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success'>) => void) => void }) {
     jestHooks.onTestRunComplete((results) => {
-      if (this.options && this.options.exec && results.success && (!this.filtered || this.options.runWhileFiltered)) {
-        this.cp.exec(this.options.exec)
+      if (this.config && this.config.exec && results.success && (!this.filtered || this.config.runWhileFiltered)) {
+        this.exec(this.config.exec, (error, stdout, stderr) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+          if (stdout) console.info(stdout)
+          if (stderr) console.info(stderr)
+        })
       }
     })
   }
