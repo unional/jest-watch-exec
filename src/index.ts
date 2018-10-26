@@ -1,2 +1,2 @@
-import { OnPassPlugin } from './OnPassPlugin'
-export = OnPassPlugin
+import { ExecPlugin } from './ExecPlugin'
+export = ExecPlugin

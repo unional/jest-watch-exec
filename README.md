@@ -21,8 +21,8 @@ add it to the `watchPlugins` section of the Jest configuration:
 {
   "jest": {
     "watchPlugins": [
-      ["jest-watch-exec", { "onpass": "npm run build" }], // or
-      ["jest-watch-exec", { "onpass": "npm run build", "execWhileFiltered": true }]
+      ["jest-watch-exec", { "on-pass": "npm run build" }], // or
+      ["jest-watch-exec", { "on-pass": "npm run build", "exec-while-filtered": true }]
     ]
   }
 }
