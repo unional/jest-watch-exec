@@ -8,7 +8,7 @@
 [![Greenkeeper badge][green-keeper-image]][green-keeper-url]
 [![semantic-release][semantic-release-image]][semantic-release-url]
 
-Execute command after test run passes.
+Execute command after a test run passes.
 
 Requires `jest@23+`.
 
