@@ -14,9 +14,9 @@ export class OnPassPlugin {
     this.config = config
   }
 
-  apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success'>) => void) => void }) {
+  apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => void) => void }) {
     jestHooks.onTestRunComplete((results) => {
-      if (this.config && this.config.exec && results.success && (!this.filtered || this.config.runWhileFiltered)) {
+      if (this.config && this.config.exec && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.runWhileFiltered)) {
         this.exec(this.config.exec, (error, stdout, stderr) => {
           if (error) {
             console.error(error);

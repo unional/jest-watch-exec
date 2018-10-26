@@ -5,7 +5,7 @@ import { Config } from './OnPassPlugin';
 test(`no exec script will do nothing`, () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: '', config: {} })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'not called')
 })
@@ -13,7 +13,15 @@ test(`no exec script will do nothing`, () => {
 test(`failed test will not run exec script`, () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
 
-  const actual = invoke({ success: false })
+  const actual = invoke({ success: false, numTotalTests: 1 })
+
+  t.strictEqual(actual, 'not called')
+})
+
+test('pass test with no test ran will not run exec script', () => {
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
+
+  const actual = invoke({ success: true, numTotalTests: 0 })
 
   t.strictEqual(actual, 'not called')
 })
@@ -22,7 +30,7 @@ test(`failed test will not run exec script`, () => {
 test('pass test will run exec script', () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'some script')
 })
@@ -30,7 +38,7 @@ test('pass test will run exec script', () => {
 test('name filtered test will not run exec script', () => {
   const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script' } })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'not called')
 })
@@ -38,7 +46,7 @@ test('name filtered test will not run exec script', () => {
 test('path filtered test will not run exec script', () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script' } })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'not called')
 })
@@ -46,7 +54,7 @@ test('path filtered test will not run exec script', () => {
 test('name filtered test with runWhileFiltered will run exec script', () => {
   const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script', runWhileFiltered: true } })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'some script')
 })
@@ -54,7 +62,7 @@ test('name filtered test with runWhileFiltered will run exec script', () => {
 test('path filtered test with runWhileFiltered will run exec script', () => {
   const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script', runWhileFiltered: true } })
 
-  const actual = invoke({ success: true })
+  const actual = invoke({ success: true, numTotalTests: 1 })
 
   t.strictEqual(actual, 'some script')
 })
@@ -69,7 +77,7 @@ function setup(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPat
   let actual = 'not called'
   subject.exec = cmd => actual = cmd
 
-  return (results: Pick<jest.AggregatedResult, 'success'>) => {
+  return (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => {
     completeCallback(results)
     return actual
   }
