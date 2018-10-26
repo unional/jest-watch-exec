@@ -1,9 +1,9 @@
 import t from 'assert'
 import OnPassPlugin from '.';
-import { Options } from './OnPassPlugin';
+import { Config } from './OnPassPlugin';
 
 test(`no exec script will do nothing`, () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '' }, undefined)
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: {} })
 
   const actual = invoke({ success: true })
 
@@ -11,7 +11,7 @@ test(`no exec script will do nothing`, () => {
 })
 
 test(`failed test will not run exec script`, () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '' }, { exec: 'some script' })
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
 
   const actual = invoke({ success: false })
 
@@ -20,7 +20,7 @@ test(`failed test will not run exec script`, () => {
 
 
 test('pass test will run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '' }, { exec: 'some script' })
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
 
   const actual = invoke({ success: true })
 
@@ -28,7 +28,7 @@ test('pass test will run exec script', () => {
 })
 
 test('name filtered test will not run exec script', () => {
-  const invoke = setup({ testNamePattern: 'x', testPathPattern: '' }, { exec: 'some script' })
+  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script' } })
 
   const actual = invoke({ success: true })
 
@@ -36,7 +36,7 @@ test('name filtered test will not run exec script', () => {
 })
 
 test('path filtered test will not run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: 'x' }, { exec: 'some script' })
+  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script' } })
 
   const actual = invoke({ success: true })
 
@@ -44,7 +44,7 @@ test('path filtered test will not run exec script', () => {
 })
 
 test('name filtered test with runWhileFiltered will run exec script', () => {
-  const invoke = setup({ testNamePattern: 'x', testPathPattern: '' }, { exec: 'some script', runWhileFiltered: true })
+  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script', runWhileFiltered: true } })
 
   const actual = invoke({ success: true })
 
@@ -52,22 +52,22 @@ test('name filtered test with runWhileFiltered will run exec script', () => {
 })
 
 test('path filtered test with runWhileFiltered will run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: 'x' }, { exec: 'some script', runWhileFiltered: true })
+  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script', runWhileFiltered: true } })
 
   const actual = invoke({ success: true })
 
   t.strictEqual(actual, 'some script')
 })
 
-function setup(config: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'>, options?: Options) {
-  const subject = new OnPassPlugin(config, options)
+function setup(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'> & { config: Config }) {
+  const subject = new OnPassPlugin(context)
 
   let completeCallback
   const jestHooks = { onTestRunComplete: cb => completeCallback = cb }
   subject.apply(jestHooks)
 
   let actual = 'not called'
-  subject.cp.exec = cmd => actual = cmd
+  subject.exec = cmd => actual = cmd
 
   return (results: Pick<jest.AggregatedResult, 'success'>) => {
     completeCallback(results)

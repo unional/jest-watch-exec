@@ -7,7 +7,8 @@ module.exports = {
   },
   "reporters": [
     "default",
-    ["jest-audio-reporter", { volume: 0.5 }]
+    ["jest-audio-reporter", { volume: 0.5 }],
+    "jest-progress-tracker",
   ],
   "roots": [
     "<rootDir>/src"
@@ -15,7 +16,7 @@ module.exports = {
   "testEnvironment": "node",
   "watchPlugins": [
     [
-      "<rootDir>/dist/index.js", { exec: 'npm run build' }
+      "<rootDir>/dist/index.js", { exec: 'npm run lint' }
     ],
     "jest-watch-suspend",
     [
