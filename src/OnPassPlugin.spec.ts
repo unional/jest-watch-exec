@@ -11,7 +11,7 @@ test(`no exec script will do nothing`, () => {
 })
 
 test(`failed test will not run exec script`, () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { onpass: 'some script' } })
 
   const actual = invoke({ success: false, numTotalTests: 1 })
 
@@ -19,7 +19,7 @@ test(`failed test will not run exec script`, () => {
 })
 
 test('pass test with no test ran will not run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { onpass: 'some script' } })
 
   const actual = invoke({ success: true, numTotalTests: 0 })
 
@@ -28,7 +28,7 @@ test('pass test with no test ran will not run exec script', () => {
 
 
 test('pass test will run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { exec: 'some script' } })
+  const invoke = setup({ testNamePattern: '', testPathPattern: '', config: { onpass: 'some script' } })
 
   const actual = invoke({ success: true, numTotalTests: 1 })
 
@@ -36,7 +36,7 @@ test('pass test will run exec script', () => {
 })
 
 test('name filtered test will not run exec script', () => {
-  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script' } })
+  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { onpass: 'some script' } })
 
   const actual = invoke({ success: true, numTotalTests: 1 })
 
@@ -44,7 +44,7 @@ test('name filtered test will not run exec script', () => {
 })
 
 test('path filtered test will not run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script' } })
+  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { onpass: 'some script' } })
 
   const actual = invoke({ success: true, numTotalTests: 1 })
 
@@ -52,7 +52,7 @@ test('path filtered test will not run exec script', () => {
 })
 
 test('name filtered test with runWhileFiltered will run exec script', () => {
-  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { exec: 'some script', runWhileFiltered: true } })
+  const invoke = setup({ testNamePattern: 'x', testPathPattern: '', config: { onpass: 'some script', execWhileFiltered: true } })
 
   const actual = invoke({ success: true, numTotalTests: 1 })
 
@@ -60,7 +60,7 @@ test('name filtered test with runWhileFiltered will run exec script', () => {
 })
 
 test('path filtered test with runWhileFiltered will run exec script', () => {
-  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { exec: 'some script', runWhileFiltered: true } })
+  const invoke = setup({ testNamePattern: '', testPathPattern: 'x', config: { onpass: 'some script', execWhileFiltered: true } })
 
   const actual = invoke({ success: true, numTotalTests: 1 })
 

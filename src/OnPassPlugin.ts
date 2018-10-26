@@ -1,14 +1,14 @@
 import cp from 'child_process';
 
 export interface Config {
-  exec?: string
-  runWhileFiltered?: boolean
+  onpass?: string
+  execWhileFiltered?: boolean
 }
 
 export class OnPassPlugin {
   exec: any = cp.exec.bind(cp)
   filtered: boolean
-  config
+  config: Config
   constructor({ testNamePattern, testPathPattern, config }: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'> & { config: Config }) {
     this.filtered = !!(testNamePattern || testPathPattern)
     this.config = config
@@ -16,10 +16,10 @@ export class OnPassPlugin {
 
   apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => void) => void }) {
     jestHooks.onTestRunComplete((results) => {
-      if (this.config && this.config.exec && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.runWhileFiltered)) {
+      if (this.config && this.config.onpass && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.execWhileFiltered)) {
         // istanbul ignore next
         // ignore coverage below as the command is execute as fire and forget.
-        this.exec(this.config.exec, (error, stdout, stderr) => {
+        this.exec(this.config.onpass, (error, stdout, stderr) => {
           if (error) {
             console.error(error);
             return;
