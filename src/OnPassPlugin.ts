@@ -17,6 +17,8 @@ export class OnPassPlugin {
   apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => void) => void }) {
     jestHooks.onTestRunComplete((results) => {
       if (this.config && this.config.exec && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.runWhileFiltered)) {
+        // istanbul ignore next
+        // ignore coverage below as the command is execute as fire and forget.
         this.exec(this.config.exec, (error, stdout, stderr) => {
           if (error) {
             console.error(error);
