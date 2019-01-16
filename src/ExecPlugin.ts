@@ -40,6 +40,7 @@ export class ExecPlugin {
             return
           }
           this.startScriptExecuted = true
+          console.info(`jest-watch-exec exeusting on-start: ${this.config.onStart}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
           this.exec(this.config.onStart!, (error, stdout, stderr) => {
             if (error) {
               console.error(error);
@@ -53,8 +54,9 @@ export class ExecPlugin {
         })
       })
     }
-    if (this.config.onPass) {
+    if (this.config.onStart || this.config.onPass) {
       jestHooks.onTestRunComplete((results) => {
+        this.startScriptExecuted = false
         if (this.config && this.config.onPass && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.execWhileFiltered)) {
           console.info(`jest-watch-exec executes on-pass: ${this.config.onPass}`)
           // istanbul ignore next

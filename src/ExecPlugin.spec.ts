@@ -92,6 +92,22 @@ describe('on-start', () => {
 
     t.strictEqual(actual, true)
   })
+  test('will be executed again on second run', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script' } })
+
+    await invoke()
+    await invoke()
+
+    t.strictEqual(invoke.actual, 'start scriptstart script')
+  })
+
+  // test('will execute a script file', async () => {
+  //   const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'some/file.js' } })
+
+  //   await invoke()
+
+  //   t.strictEqual(invoke.actual, 'start scriptstart script')
+  // })
 })
 
 
@@ -119,20 +135,24 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
   const subject = new ExecPlugin(context)
 
   let shouldRunCallback: any
-
+  let onTestComplete: any
   subject.apply({
     shouldRunTestSuite: cb => shouldRunCallback = cb,
-    onTestRunComplete: () => { return }
+    onTestRunComplete: cb => onTestComplete = cb
   })
 
   const tester = Object.assign(
     async (testPaths: string[] = ['dummy']) => {
-      return new Promise(a => {
+      const result = new Promise(a => {
         bb.reduce(testPaths, async (passing, testPath) => {
           if (!passing) return false
           return shouldRunCallback(testPath)
         }, true).then(a)
       })
+      if (result && onTestComplete) {
+        onTestComplete({})
+      }
+      return result
     },
     {
       subject,
