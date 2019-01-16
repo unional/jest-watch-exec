@@ -21,6 +21,7 @@ export class ExecPlugin {
   exec: any = cp.exec.bind(cp)
   filtered: boolean
   config: Config
+  private startScriptExecuted = false
   constructor({ testNamePattern, testPathPattern, config }: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'> & { config: ConfigInput }) {
     this.filtered = !!(testNamePattern || testPathPattern)
     this.config = toConfig(config)
@@ -30,15 +31,20 @@ export class ExecPlugin {
     if (this.config.onStart) {
       jestHooks.shouldRunTestSuite(() => {
         return new Promise(a => {
+          if (this.startScriptExecuted) {
+            a(true)
+            return
+          }
+          this.startScriptExecuted = true
           this.exec(this.config.onStart, (error: any, stdout: any, stderr: any) => {
             if (error) {
               console.error(error);
-              a()
+              a(false)
               return
             }
             if (stdout) console.info(stdout)
             if (stderr) console.info(stderr)
-            a()
+            a(true)
           })
         })
       })
