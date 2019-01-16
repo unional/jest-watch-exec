@@ -126,7 +126,6 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
   return async (testPaths: string[] = ['dummy']) => {
     await new Promise(a => {
       bb.reduce(testPaths, async (passing, testPath) => {
-        console.log('in', passing)
         if (!passing) return false
         return shouldRunCallback(testPath)
       }, true).then(a)
