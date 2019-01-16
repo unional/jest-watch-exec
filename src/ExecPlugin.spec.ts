@@ -74,16 +74,23 @@ describe('on-start', () => {
   test('will be executed', async () => {
     const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script' } })
 
-    const actual = await invoke()
+    await invoke()
 
-    t.strictEqual(actual, 'start script')
+    t.strictEqual(invoke.actual, 'start script')
   })
-  test.only('will be executed only once', async () => {
+  test('will be executed only once', async () => {
     const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script' } })
 
-    const actual = await invoke(['a', 'b'])
+    await invoke(['a', 'b'])
 
-    t.strictEqual(actual, 'start script')
+    t.strictEqual(invoke.actual, 'start script')
+  })
+  test('will run test even if the script causes error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script', 'on-start-ignore-error': true } })
+    invoke.subject.exec = (_, cb) => cb(new Error('expected bad call'))
+    const actual = await invoke(['a'])
+
+    t.strictEqual(actual, true)
   })
 })
 
@@ -102,7 +109,8 @@ function setupOnPass(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'testP
   subject.exec = (cmd: string) => actual = cmd
 
   return (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => {
-    completeCallback(results)
+    if (completeCallback)
+      completeCallback(results)
     return actual
   }
 }
@@ -117,19 +125,24 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
     onTestRunComplete: () => { return }
   })
 
-  let actual = ''
+  const tester = Object.assign(
+    async (testPaths: string[] = ['dummy']) => {
+      return new Promise(a => {
+        bb.reduce(testPaths, async (passing, testPath) => {
+          if (!passing) return false
+          return shouldRunCallback(testPath)
+        }, true).then(a)
+      })
+    },
+    {
+      subject,
+      actual: ''
+    })
+
   subject.exec = (cmd: string, cb: any) => {
-    actual += cmd
+    tester.actual += cmd
     cb(null)
   }
 
-  return async (testPaths: string[] = ['dummy']) => {
-    await new Promise(a => {
-      bb.reduce(testPaths, async (passing, testPath) => {
-        if (!passing) return false
-        return shouldRunCallback(testPath)
-      }, true).then(a)
-    })
-    return actual
-  }
+  return tester
 }
