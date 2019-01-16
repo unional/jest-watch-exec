@@ -2,12 +2,19 @@ import cp from 'child_process';
 
 export interface ConfigInput {
   'on-pass'?: string
+  'on-start'?: string
   'exec-while-filtered'?: boolean
 }
 
 export interface Config {
   onPass?: string
+  onStart?: string
   execWhileFiltered?: boolean
+}
+
+export type JestHooks = {
+  shouldRunTestSuite: (cb: (testPath: string) => boolean | Promise<boolean>) => void
+  onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => void) => void
 }
 
 export class ExecPlugin {
@@ -19,13 +26,29 @@ export class ExecPlugin {
     this.config = toConfig(config)
   }
 
-  apply(jestHooks: { onTestRunComplete: (cb: (results: Pick<jest.AggregatedResult, 'success' | 'numTotalTests'>) => void) => void }) {
+  apply(jestHooks: JestHooks) {
+    if (this.config.onStart) {
+      jestHooks.shouldRunTestSuite(() => {
+        return new Promise(a => {
+          this.exec(this.config.onStart, (error: any, stdout: any, stderr: any) => {
+            if (error) {
+              console.error(error);
+              a()
+              return
+            }
+            if (stdout) console.info(stdout)
+            if (stderr) console.info(stderr)
+            a()
+          })
+        })
+      })
+    }
     jestHooks.onTestRunComplete((results) => {
       if (this.config && this.config.onPass && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.execWhileFiltered)) {
         console.info(`jest-watch-exec executes on-pass: ${this.config.onPass}`)
         // istanbul ignore next
         // ignore coverage below as the command is execute as fire and forget.
-        this.exec(this.config.onPass, (error, stdout, stderr) => {
+        this.exec(this.config.onPass, (error: any, stdout: any, stderr: any) => {
           if (error) {
             console.error(error);
             return;
@@ -40,6 +63,7 @@ export class ExecPlugin {
 
 function toConfig(config: ConfigInput) {
   return {
+    onStart: config['on-start'],
     onPass: config['on-pass'],
     execWhileFiltered: config['exec-while-filtered']
   }

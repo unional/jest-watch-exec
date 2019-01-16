@@ -17,45 +17,28 @@
     "url": "https://github.com/unional/jest-watch-exec.git"
   },
   "license": "MIT",
-  "files": [
-    "dist"
-  ],
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "author": {
+    "name": "Homa Wong (unional)",
+    "email": "homawong@gmail.com"
+  },
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.base.json",
-    "coverage": "jest --coverage",
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf lib",
     "dc": "npm run dependency-check",
     "dependency-check": "dependency-check . --unused --no-dev -i jest && dependency-check . --missing --no-dev",
-    "lint": "tslint -p tsconfig.json 'src/**/*.ts'",
-    "test": "npm run build && jest",
-    "verify": "npm run lint && npm run build && npm run coverage && npm run dependency-check",
-    "verify-ci": "npm run lint && npm run build && jest --coverage --config jest.config.ci.json && npm run dependency-check",
-    "watch": "npm run build && jest --watch"
+    "lint": "tslint -p tsconfig.json",
+    "test": "jest",
+    "verify": "npm run lint && npm run build && npm run dependency-check && jest --coverage",
+    "watch": "jest --watch"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/ansi-escapes": "^3.0.0",
-    "@types/jest": "^23.3.7",
-    "@types/node": "^10.12.0",
-    "assertron": "^5.2.2",
-    "codecov": "^3.1.0",
-    "dependency-check": "^3.2.1",
-    "eslint-plugin-harmony": "^1.0.4",
-    "greenkeeper-lockfile": "^1.15.1",
-    "jest": "^23.6.0",
-    "jest-audio-reporter": "^2.2.0",
-    "jest-junit": "^6.0.0",
-    "jest-progress-tracker": "^2.0.1",
-    "jest-watch-suspend": "^1.1.0",
-    "jest-watch-toggle-config": "^1.0.2",
-    "memory-streams": "^0.1.3",
-    "semantic-release": "^15.10.5",
-    "ts-jest": "^23.10.4",
-    "tslint": "^5.11.0",
-    "tslint-config-unional": "^0.10.0",
-    "tslint-language-service": "^0.9.9",
-    "typescript": "^3.1.3"
+    "@types/bluebird": "^3.5.25",
+    "@unional/devpkg-node": "^1.2.2",
+    "assertron": "^6.0.0",
+    "bluebird": "^3.5.3"
   },
   "peerDependencies": {
     "jest": ">=23"
