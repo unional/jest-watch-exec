@@ -36,11 +36,13 @@
   "devDependencies": {
     "@types/ansi-escapes": "^3.0.0",
     "@types/bluebird": "^3.5.25",
+    "@types/is-valid-path": "^0.1.0",
     "@unional/devpkg-node": "^1.2.2",
     "assertron": "^6.0.0",
     "bluebird": "^3.5.3"
   },
   "peerDependencies": {
     "jest": ">=23"
-  }
+  },
+  "dependencies": {}
 }

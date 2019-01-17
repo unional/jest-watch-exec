@@ -85,7 +85,14 @@ describe('on-start', () => {
 
     t.strictEqual(invoke.actual, 'start script')
   })
-  test('will run test even if the script causes error', async () => {
+
+  test('will return false to shouldRun if the script causes an error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script' } })
+    invoke.subject.exec = (_, cb) => cb(new Error('expected bad call'))
+    t.strictEqual(await invoke(), false)
+  })
+
+  test('with on-start-ignore-error, will run test even if the script causes error', async () => {
     const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script', 'on-start-ignore-error': true } })
     invoke.subject.exec = (_, cb) => cb(new Error('expected bad call'))
     const actual = await invoke(['a'])
@@ -100,14 +107,39 @@ describe('on-start', () => {
 
     t.strictEqual(invoke.actual, 'start scriptstart script')
   })
+})
+describe('on-start-script', () => {
+  test('will execute a script file', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
 
-  // test('will execute a script file', async () => {
-  //   const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'some/file.js' } })
+    let actual = ''
+    invoke.subject.execFile = (file, _, cb) => {
+      actual = file
+      cb(null)
+    }
+    await invoke()
 
-  //   await invoke()
+    t.strictEqual(actual, 'somescript.js')
+  })
+  test('will return false to shouldRun if the script causes an error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
+    invoke.subject.execFile = (_, _args, cb) => cb(new Error('expected bad call'))
+    t.strictEqual(await invoke(), false)
+  })
 
-  //   t.strictEqual(invoke.actual, 'start scriptstart script')
-  // })
+  test('with on-start-ignore-error, will run test even if the script causes error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js', 'on-start-ignore-error': true } })
+    invoke.subject.execFile = (_, _args, cb) => cb(new Error('expected bad call'))
+    t.strictEqual(await invoke(), true)
+  })
+  test('will be executed again on second run', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
+
+    await invoke()
+    await invoke()
+
+    t.strictEqual(invoke.actual, 'somescript.jssomescript.js')
+  })
 })
 
 
@@ -160,6 +192,10 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
     })
 
   subject.exec = (cmd: string, cb: any) => {
+    tester.actual += cmd
+    cb(null)
+  }
+  subject.execFile = (cmd: string, args: any[], cb: any) => {
     tester.actual += cmd
     cb(null)
   }
