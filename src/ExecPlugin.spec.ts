@@ -100,14 +100,35 @@ describe('on-start', () => {
 
     t.strictEqual(invoke.actual, 'start scriptstart script')
   })
+})
+describe('on-start-script', () => {
+  test('will execute a script file', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
 
-  // test('will execute a script file', async () => {
-  //   const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'some/file.js' } })
+    let actual = ''
+    invoke.subject.execFile = (file, _, cb) => {
+      actual = file
+      cb(null)
+    }
+    await invoke()
 
-  //   await invoke()
+    t.strictEqual(actual, 'somescript.js')
+  })
+  test('will run test even if the script causes error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js', 'on-start-ignore-error': true } })
+    invoke.subject.exec = (_, cb) => cb(new Error('expected bad call'))
+    const actual = await invoke(['a'])
 
-  //   t.strictEqual(invoke.actual, 'start scriptstart script')
-  // })
+    t.strictEqual(actual, true)
+  })
+  test('will be executed again on second run', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
+
+    await invoke()
+    await invoke()
+
+    t.strictEqual(invoke.actual, 'somescript.jssomescript.js')
+  })
 })
 
 
@@ -160,6 +181,10 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
     })
 
   subject.exec = (cmd: string, cb: any) => {
+    tester.actual += cmd
+    cb(null)
+  }
+  subject.execFile = (cmd: string, args: any[], cb: any) => {
     tester.actual += cmd
     cb(null)
   }
