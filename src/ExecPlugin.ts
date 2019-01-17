@@ -1,9 +1,11 @@
 import cp from 'child_process';
+import path from 'path'
 
 export interface ConfigInput {
   'on-pass'?: string
   'on-start'?: string
   'on-start-script'?: string
+  'on-start-module'?: string
   'exec-while-filtered'?: boolean
   'on-start-ignore-error'?: boolean
 }
@@ -12,6 +14,7 @@ export interface Config {
   onPass?: string
   onStart?: string
   onStartScript?: string
+  onStartModule?: string
   onStartIgnoreIrror?: boolean
   execWhileFiltered?: boolean
 }
@@ -29,6 +32,7 @@ export class ExecPlugin {
   execFile: ExecFile = cp.execFile.bind(cp) as any
   filtered: boolean
   config: Config
+  m: any
   private startScriptExecuted = false
   constructor({ testNamePattern, testPathPattern, config }: Pick<jest.GlobalConfig, 'testNamePattern' | 'testPathPattern'> & { config: ConfigInput }) {
     this.filtered = !!(testNamePattern || testPathPattern)
@@ -36,16 +40,45 @@ export class ExecPlugin {
   }
 
   apply(jestHooks: JestHooks) {
-    if (this.config.onStart || this.config.onStartScript) {
+    if (this.config.onStart || this.config.onStartScript || this.config.onStartModule) {
       jestHooks.shouldRunTestSuite(() => {
-        return new Promise(a => {
+        return new Promise((a, r) => {
           if (this.startScriptExecuted) {
             a(true)
             return
           }
           this.startScriptExecuted = true
-          if (this.config.onStartScript) {
-            console.info(`jest-watch-exec exeusting on-start-script: ${this.config.onStartScript}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
+
+          if (this.config.onStartModule) {
+            try {
+              if (!this.m) {
+                this.m = require(path.resolve(process.cwd(), this.config.onStartModule))
+
+                if (typeof this.m.run !== 'function') {
+                  console.error(`jest-watch-exec: there are no 'run()' method in the module '${this.config.onStartModule}'`)
+                  a(false)
+                  return
+                }
+              }
+
+              const result = this.m.run()
+              if (result && typeof result.then === 'function') {
+                result.then(a, (result: any) => {
+                  console.log('rejected with', result)
+                  if (result !== undefined) console.warn(`jest-watch-exec: ${this.config.onStartModule}.run() rejected with ${result}`)
+                  a(this.config.onStartIgnoreIrror ? true : false)
+                })
+              }
+              else {
+                a(this.config.onStartIgnoreIrror ? true : result)
+              }
+            }
+            catch (e) {
+              r(e)
+            }
+          }
+          else if (this.config.onStartScript) {
+            console.info(`jest-watch-exec: executes on-start-script: ${this.config.onStartScript}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
             this.execFile(this.config.onStartScript, [], (error, stdout, stderr) => {
               if (error) {
                 console.error(error);
@@ -60,7 +93,7 @@ export class ExecPlugin {
             })
           }
           else {
-            console.info(`jest-watch-exec exeusting on-start: ${this.config.onStart}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
+            console.info(`jest-watch-exec: executes on-start: ${this.config.onStart}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
             this.exec(this.config.onStart!, (error, stdout, stderr) => {
               if (error) {
                 console.error(error);
@@ -78,11 +111,11 @@ export class ExecPlugin {
         })
       })
     }
-    if (this.config.onStart || this.config.onStartScript || this.config.onPass) {
+    if (this.config.onStart || this.config.onStartScript || this.config.onStartModule || this.config.onPass) {
       jestHooks.onTestRunComplete((results) => {
         this.startScriptExecuted = false
         if (this.config && this.config.onPass && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.execWhileFiltered)) {
-          console.info(`jest-watch-exec executes on-pass: ${this.config.onPass}`)
+          console.info(`jest-watch-exec: executes on-pass: ${this.config.onPass}`)
           // istanbul ignore next
           // ignore coverage below as the command is execute as fire and forget.
           this.exec(this.config.onPass, (error, stdout, stderr) => {
@@ -103,6 +136,7 @@ function toConfig(config: ConfigInput) {
   return {
     onStart: config['on-start'],
     onStartScript: config['on-start-script'],
+    onStartModule: config['on-start-module'],
     onStartIgnoreIrror: config['on-start-ignore-error'],
     onPass: config['on-pass'],
     execWhileFiltered: config['exec-while-filtered']
