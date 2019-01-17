@@ -14,7 +14,7 @@
 [![Visual Studio Code][vscode-image]][vscode-url]
 [![Wallaby.js][wallaby-image]][wallaby-url]
 
-Execute command after a test run passes.
+Execute commands on start or when the all tests pass.
 
 Requires `jest@23+`.
 
