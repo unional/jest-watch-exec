@@ -108,6 +108,7 @@ describe('on-start', () => {
     t.strictEqual(invoke.actual, 'start scriptstart script')
   })
 })
+
 describe('on-start-script', () => {
   test('will execute a script file', async () => {
     const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-script': 'somescript.js' } })
@@ -139,6 +140,69 @@ describe('on-start-script', () => {
     await invoke()
 
     t.strictEqual(invoke.actual, 'somescript.jssomescript.js')
+  })
+})
+
+
+describe('on-start-module', () => {
+  test(`will run tests if the module.run() returns true`, async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/return-true.js' } })
+
+    t.strictEqual(await invoke(), true)
+  })
+
+  test(`will not run tests if the module.run() returns false`, async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/return-false.js' } })
+
+    t.strictEqual(await invoke(), false)
+  })
+
+
+  test(`will run tests if the module.run() returns a promise that resolves to true`, async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/resolve-true.js' } })
+
+    t.strictEqual(await invoke(), true)
+  })
+
+  test('will print a message and return false if the module does not contain a run() method', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/norun.js' } })
+
+    t.strictEqual(await invoke(), false)
+  })
+  test('will print a message and return false if the module does not exist', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/notexist.js' } })
+    try {
+      await invoke()
+      t.fail('Should not reach')
+    }
+    catch (e) {
+      t.strictEqual(e.code, 'MODULE_NOT_FOUND')
+    }
+  })
+
+  test('will return false to shouldRun if the run() method a promise that resolves to false', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/resolve-false.js' } })
+
+    t.strictEqual(await invoke(), false)
+  })
+
+  test('will return false to shouldRun if the run() method returns a rejected promise', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/reject.js' } })
+
+    t.strictEqual(await invoke(), false)
+  })
+
+  test('with on-start-ignore-error, will run test even if the script causes error', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/reject.js', 'on-start-ignore-error': true } })
+
+    t.strictEqual(await invoke(), true)
+  })
+  test('will keey the module and execute run() in each test run', async () => {
+    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/alternate.js' } })
+
+    t.strictEqual(await invoke(), true)
+    t.strictEqual(await invoke(), false)
+    t.strictEqual(await invoke(), true)
   })
 })
 
@@ -175,11 +239,11 @@ function setupOnStart(context: Pick<jest.GlobalConfig, 'testNamePattern' | 'test
 
   const tester = Object.assign(
     async (testPaths: string[] = ['dummy']) => {
-      const result = new Promise(a => {
+      const result = new Promise((a, r) => {
         bb.reduce(testPaths, async (passing, testPath) => {
           if (!passing) return false
           return shouldRunCallback(testPath)
-        }, true).then(a)
+        }, true).then(a, r)
       })
       if (result && onTestComplete) {
         onTestComplete({})
