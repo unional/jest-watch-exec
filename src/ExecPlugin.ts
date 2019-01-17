@@ -52,7 +52,9 @@ export class ExecPlugin {
                 a(this.config.onStartIgnoreIrror ? true : false)
                 return
               }
+              // istanbul ignore next
               if (stdout) console.info(stdout)
+              // istanbul ignore next
               if (stderr) console.info(stderr)
               a(true)
             })
@@ -65,8 +67,11 @@ export class ExecPlugin {
                 a(this.config.onStartIgnoreIrror ? true : false)
                 return
               }
+              // istanbul ignore next
               if (stdout) console.info(stdout)
+              // istanbul ignore next
               if (stderr) console.info(stderr)
+
               a(true)
             })
           }
