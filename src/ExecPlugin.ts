@@ -55,7 +55,7 @@ export class ExecPlugin {
                 this.m = require(path.resolve(process.cwd(), this.config.onStartModule))
 
                 if (typeof this.m.run !== 'function') {
-                  console.error(`There are no 'run()' method in the module '${this.config.onStartModule}'`)
+                  console.error(`jest-watch-exec: there are no 'run()' method in the module '${this.config.onStartModule}'`)
                   a(false)
                   return
                 }
@@ -64,7 +64,8 @@ export class ExecPlugin {
               const result = this.m.run()
               if (result && typeof result.then === 'function') {
                 result.then(a, (result: any) => {
-                  if (result !== undefined) console.warn(`${this.config.onStartModule}.run() rejected with ${result}`)
+                  console.log('rejected with', result)
+                  if (result !== undefined) console.warn(`jest-watch-exec: ${this.config.onStartModule}.run() rejected with ${result}`)
                   a(this.config.onStartIgnoreIrror ? true : false)
                 })
               }
@@ -77,7 +78,7 @@ export class ExecPlugin {
             }
           }
           else if (this.config.onStartScript) {
-            console.info(`jest-watch-exec exeusting on-start-script: ${this.config.onStartScript}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
+            console.info(`jest-watch-exec: executes on-start-script: ${this.config.onStartScript}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
             this.execFile(this.config.onStartScript, [], (error, stdout, stderr) => {
               if (error) {
                 console.error(error);
@@ -92,7 +93,7 @@ export class ExecPlugin {
             })
           }
           else {
-            console.info(`jest-watch-exec exeusting on-start: ${this.config.onStart}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
+            console.info(`jest-watch-exec: executes on-start: ${this.config.onStart}${this.config.onStartIgnoreIrror ? ' (ignoring errors)' : ''}`)
             this.exec(this.config.onStart!, (error, stdout, stderr) => {
               if (error) {
                 console.error(error);
@@ -114,7 +115,7 @@ export class ExecPlugin {
       jestHooks.onTestRunComplete((results) => {
         this.startScriptExecuted = false
         if (this.config && this.config.onPass && results.success && results.numTotalTests > 0 && (!this.filtered || this.config.execWhileFiltered)) {
-          console.info(`jest-watch-exec executes on-pass: ${this.config.onPass}`)
+          console.info(`jest-watch-exec: executes on-pass: ${this.config.onPass}`)
           // istanbul ignore next
           // ignore coverage below as the command is execute as fire and forget.
           this.exec(this.config.onPass, (error, stdout, stderr) => {
