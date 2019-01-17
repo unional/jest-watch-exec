@@ -93,9 +93,13 @@ describe('on-start', () => {
   })
 
   test('with on-start-ignore-error, will run test even if the script causes error', async () => {
-    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start': 'start script', 'on-start-ignore-error': true } })
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: { 'on-start': 'start script', 'on-start-ignore-error': true }
+    })
     invoke.subject.exec = (_, cb) => cb(new Error('expected bad call'))
-    const actual = await invoke(['a'])
+    const actual = await invoke()
 
     t.strictEqual(actual, true)
   })
@@ -193,28 +197,73 @@ describe('on-start-module', () => {
   })
 
   test('will return false to shouldRun if the run() method returns a promise reject with error', async () => {
-    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/reject-error.js' } })
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: { 'on-start-module': 'fixture/reject-error.js' }
+    })
 
     t.strictEqual(await invoke(), false)
   })
 
   test('with on-start-ignore-error, will run test even if the module return rejected promise', async () => {
-    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/reject.js', 'on-start-ignore-error': true } })
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: {
+        'on-start-module': 'fixture/reject.js',
+        'on-start-ignore-error': true
+      }
+    })
 
     t.strictEqual(await invoke(), true)
   })
 
   test('with on-start-ignore-error, will run test even if the module returns false', async () => {
-    const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/return-false.js', 'on-start-ignore-error': true } })
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: {
+        'on-start-module': 'fixture/return-false.js',
+        'on-start-ignore-error': true
+      }
+    })
 
     t.strictEqual(await invoke(), true)
   })
 
-  test('will keey the module and execute run() in each test run', async () => {
+  test('will keep the module and execute run() in each test run', async () => {
     const invoke = setupOnStart({ testNamePattern: '', testPathPattern: '', config: { 'on-start-module': 'fixture/alternate.js' } })
 
     t.strictEqual(await invoke(), true)
     t.strictEqual(await invoke(), false)
+    t.strictEqual(await invoke(), true)
+  })
+
+  test('will not run test if the module return a promise that does not resolves', async () => {
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: {
+        'on-start-module': 'fixture/notresolving.js',
+        'module-timeout': 10
+      }
+    })
+
+    t.strictEqual(await invoke(), false)
+  })
+
+  test('with on-start-ignore-error, will run test even if the module return a promise that does not resolves', async () => {
+    const invoke = setupOnStart({
+      testNamePattern: '',
+      testPathPattern: '',
+      config: {
+        'on-start-module': 'fixture/notresolving.js',
+        'module-timeout': 10,
+        'on-start-ignore-error': true
+      }
+    })
+
     t.strictEqual(await invoke(), true)
   })
 })
