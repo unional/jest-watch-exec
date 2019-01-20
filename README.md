@@ -28,17 +28,17 @@ add it to the `watchPlugins` section of the Jest configuration:
   "jest": {
     "watchPlugins": [
       ["jest-watch-exec", { "on-start": "npm run build" }],
-      // Will run test even if the script throws an error.
+      // Will run test even if the script fails.
       ["jest-watch-exec", { "on-start": "npm run build", "on-start-ignore-error": true }],
       ["jest-watch-exec", { "on-start-script": "somescript.js" }],
-      // Will run test even if the script throws an error.
+      // Will run test even if the script fails.
       ["jest-watch-exec", { "on-start-script": "somescript.js", "on-start-ignore-error": true }],
       // Will run the `run(): boolean | Promise<boolean>` method exposed by the module
       ["jest-watch-exec", { "on-start-module": "modulescript.js" }],
-      // Will run test even if the script returns:
+      // Will run test even if the script fails:
       // - a falsy value,
-      // a promise resolves to false,
-      // or a rejected promise.
+      // - a promise resolves to false, or
+      // - a rejected promise.
       ["jest-watch-exec", { "on-start-module": "modulescript.js", "on-start-ignore-error": true }],
       // execute script when there are passing tests.
       // will not execute if the tests are filtered.
@@ -49,6 +49,12 @@ add it to the `watchPlugins` section of the Jest configuration:
   }
 }
 ```
+
+- `on-start-ignore-error`: The script is considered failed if it:
+  - returns a falsy value,
+  - throws an error,
+  - returns a promise resolves to false, or
+  - returns a rejected promise.
 
 ## Contribute
 
