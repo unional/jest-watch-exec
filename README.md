@@ -31,14 +31,9 @@ add it to the `watchPlugins` section of the Jest configuration:
       // Will run test even if the script fails.
       ["jest-watch-exec", { "on-start": "npm run build", "on-start-ignore-error": true }],
       ["jest-watch-exec", { "on-start-script": "somescript.js" }],
-      // Will run test even if the script fails.
       ["jest-watch-exec", { "on-start-script": "somescript.js", "on-start-ignore-error": true }],
       // Will run the `run(): boolean | Promise<boolean>` method exposed by the module
       ["jest-watch-exec", { "on-start-module": "modulescript.js" }],
-      // Will run test even if the script fails:
-      // - a falsy value,
-      // - a promise resolves to false, or
-      // - a rejected promise.
       ["jest-watch-exec", { "on-start-module": "modulescript.js", "on-start-ignore-error": true }],
       // execute script when there are passing tests.
       // will not execute if the tests are filtered.
