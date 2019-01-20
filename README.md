@@ -28,13 +28,11 @@ add it to the `watchPlugins` section of the Jest configuration:
   "jest": {
     "watchPlugins": [
       ["jest-watch-exec", { "on-start": "npm run build" }],
-      // Will run test even if the script fails.
-      ["jest-watch-exec", { "on-start": "npm run build", "on-start-ignore-error": true }],
       ["jest-watch-exec", { "on-start-script": "somescript.js" }],
-      ["jest-watch-exec", { "on-start-script": "somescript.js", "on-start-ignore-error": true }],
       // Will run the `run(): boolean | Promise<boolean>` method exposed by the module
       ["jest-watch-exec", { "on-start-module": "modulescript.js" }],
-      ["jest-watch-exec", { "on-start-module": "modulescript.js", "on-start-ignore-error": true }],
+      // Will run test even if on-start | on-start-script | on-start-module fails.
+      ["jest-watch-exec", { "on-start-ignore-error": true, ... }],
       // execute script when there are passing tests.
       // will not execute if the tests are filtered.
       ["jest-watch-exec", { "on-pass": "npm run build" }],
