@@ -36,7 +36,7 @@ add it to the `watchPlugins` section of the Jest configuration:
       // execute script when there are passing tests.
       // will not execute if the tests are filtered.
       ["jest-watch-exec", { "on-pass": "npm run build" }],
-      // 'exec-while-filtered' applies to 'on-pass'
+      // execute 'on-pass' even the tests are filtered.
       ["jest-watch-exec", { "on-pass": "npm run build", "exec-while-filtered": true }]
     ]
   }
