@@ -34,7 +34,7 @@
     "watch": "jest --watch"
   },
   "devDependencies": {
-    "@types/ansi-escapes": "^3.0.0",
+    "@types/ansi-escapes": "^4.0.0",
     "@types/bluebird": "^3.5.25",
     "@types/is-valid-path": "^0.1.0",
     "@unional/devpkg-node": "^1.2.2",
