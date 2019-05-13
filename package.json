@@ -33,16 +33,14 @@
     "verify": "npm run lint && npm run build && npm run dependency-check && jest --coverage",
     "watch": "jest --watch"
   },
+  "dependencies": {},
   "devDependencies": {
-    "@types/ansi-escapes": "^3.0.0",
-    "@types/bluebird": "^3.5.25",
-    "@types/is-valid-path": "^0.1.0",
-    "@unional/devpkg-node": "^1.2.2",
-    "assertron": "^6.0.0",
-    "bluebird": "^3.5.3"
+    "@types/bluebird": "^3.5.26",
+    "@unional/devpkg-node": "^1.3.0",
+    "assertron": "^7.0.1",
+    "bluebird": "^3.5.4"
   },
   "peerDependencies": {
     "jest": ">=23"
-  },
-  "dependencies": {}
+  }
 }
